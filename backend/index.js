@@ -45,7 +45,32 @@ app.get("/tasks", async (req, res) => {
   }
 })
 
+app.patch("/tasks/:id", async (req, res) => {
+  try {
+    const task = await taskmodel.findByIdAndUpdate(
+      req.params.id,
+      { completed: req.body.completed },
+      { returnDocument: "after" }
+    );
+    console.log(`updated the db`)
+    res.json(task);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to update todo" });
+  }
+});
 
-app.listen(3000, () => {
-  console.log("Server is running on port 3000");
-})
+
+app.delete("/tasks/:id", async (req, res) => {
+  
+  try {
+    const task = await taskmodel.findByIdAndDelete(req.params.id);
+    if (!task) {
+      return res.status(404).json({ message: "Task not found" });
+    }
+
+    res.status(200).json({ message: "Task deleted" });
+  } catch (error) {
+    console.error("DELETE error:", error); // add this
+    res.status(500).json({ message: error.message });
+  }
+});

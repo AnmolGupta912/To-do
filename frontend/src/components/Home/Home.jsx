@@ -1,13 +1,9 @@
-import './App.css'
+import "../app.css"
 import { useState } from 'react'
-// import {  writeFileSync } from "fs";
-// import data from "./tasks.json"
 
 
-function App() {
+function Home() {
     const [tasks, setTasks] = useState([])
-
-    // console.log(data)
 
     const saveTask = (e) => {
         e.preventDefault()
@@ -15,30 +11,32 @@ function App() {
         if (task) {
             setTasks([...tasks, task])
             e.target[0].value = ""
-            // writeFileSync("tasks.json", JSON.stringify([...tasks, task]))
         }
-
-
     }
 
     const removeTask = (index) => {
         const newTasks = tasks.filter((_, i) => i !== index)
         setTasks(newTasks)
-        // writeFileSync("tasks.json", JSON.stringify(newTasks))
     }
 
-    const handleSave = () => {
-        fetch("http://localhost:3000/tasks", {
+    const handleSave = async () => {
+        if (tasks.length > 0) {
+            try {
+            for (const task of tasks) {
+                await fetch("http://localhost:3000/tasks", {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({ description: tasks.join(", ") })
-            })
-            .then(res => res.json())
-            .then(data => console.log(data))
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ description: task })
+                })
+            }
+            setTasks([])
+            } catch (err) {
+            console.error("Failed to save tasks:", err)
+            }
+        } else {
+            alert("No tasks to save!")
         }
-    
+        }
 
   return (
     <>
@@ -70,4 +68,4 @@ function App() {
   )
 }
 
-export default App
+export default Home
